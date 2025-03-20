@@ -1,0 +1,101 @@
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Exercise 1: Parity Bit Error Detection
+def compute_even_parity(data):
+    return sum(data) % 2
+
+def parity_check(data):
+    received_parity = compute_even_parity(data[:-1])
+    return received_parity == data[-1]
+
+def simulate_parity_error(data, error_index):
+    data_with_error = data.copy()
+    data_with_error[error_index] = 1 - data_with_error[error_index]  # Flip bit
+    return data_with_error
+
+# Exercise 2: 2D Parity Check
+def compute_2d_parity(matrix):
+    row_parity = np.sum(matrix, axis=1) % 2
+    col_parity = np.sum(matrix, axis=0) % 2
+    return row_parity, col_parity
+
+def detect_2d_parity_error(matrix, row_par, col_par):
+    new_row_par, new_col_par = compute_2d_parity(matrix)
+    err_row = np.where(new_row_par != row_par)[0]
+    err_col = np.where(new_col_par != col_par)[0]
+    return err_row, err_col
+
+# Exercise 3: Complement Checksum
+def ones_complement_sum(a, b, bit_size=16):
+    result = a + b
+    if result >= (1 << bit_size):  # If overflow occurs, wrap around
+        result = (result + 1) & ((1 << bit_size) - 1)
+    return result
+
+def calculate_checksum(data, bit_size=16):
+    checksum = 0
+    for word in data:
+        checksum = ones_complement_sum(checksum, word, bit_size)
+    return ~checksum & ((1 << bit_size) - 1)
+
+def verify_checksum(data, received_checksum, bit_size=16):
+    total = 0
+    for word in data:
+        total = ones_complement_sum(total, word, bit_size)
+    total = ones_complement_sum(total, received_checksum, bit_size)
+    return total == (1 << bit_size) - 1
+
+# Exercise 4: Slotted ALOHA Simulation
+def simulate_slotted_aloha(n_nodes, p, n_slots):
+    successes = 0
+    for _ in range(n_slots):
+        transmissions = sum(1 for _ in range(n_nodes) if random.random() < p)
+        if transmissions == 1:
+            successes += 1
+    return successes / n_slots
+
+def plot_aloha_efficiency():
+    n_nodes = 50
+    ps = np.linspace(0, 1, 50)
+    efficiencies = [simulate_slotted_aloha(n_nodes, p, 10000) for p in ps]
+    plt.plot(ps, efficiencies, marker='o')
+    plt.xlabel('Transmission Probability')
+    plt.ylabel('Efficiency')
+    plt.title('Slotted ALOHA Efficiency Simulation')
+    plt.show()
+
+# Run all the exercises
+if __name__ == "__main__":
+    print("=== Parity Bit Error Detection ===")
+    data_bits = [1, 0, 1, 0, 1, 1, 0, 0]
+    parity_bit = compute_even_parity(data_bits)
+    transmitted_data = data_bits + [parity_bit]
+    print("Transmitted Data:", transmitted_data)
+    print("Parity Check Passed:" if parity_check(transmitted_data) else "Parity Check Failed")
+
+    print("\n=== Simulating Parity Error ===")
+    data_with_error = simulate_parity_error(transmitted_data, 3)
+    print("Data with Error:", data_with_error)
+    print("Parity Check Passed:" if parity_check(data_with_error) else "Parity Check Failed")
+
+    print("\n=== 2D Parity Check ===")
+    data_matrix = np.array([[1, 0, 1, 1], [0, 1, 0, 0], [1, 1, 1, 0], [0, 0, 1, 1]])
+    row_par, col_par = compute_2d_parity(data_matrix)
+    print("Row Parity:", row_par)
+    print("Column Parity:", col_par)
+    data_matrix[2, 1] = 1 - data_matrix[2, 1]  # Simulating error
+    err_row, err_col = detect_2d_parity_error(data_matrix, row_par, col_par)
+    print("Error detected at:", (err_row[0], err_col[0]))
+
+    print("\n=== One’s Complement Checksum ===")
+    checksum_data = [0b1010101010101010, 0b1100110011001100, 0b1111000011110000]
+    checksum = calculate_checksum(checksum_data)
+    print("Calculated Checksum:", bin(checksum))
+    print("Checksum Verification:", "Valid" if verify_checksum(checksum_data, checksum) else "Invalid")
+
+    print("\n=== Slotted ALOHA Efficiency ===")
+    plot_aloha_efficiency()
+
+    print("\nAll Week 7 exercises executed successfully!\n")
