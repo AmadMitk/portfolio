@@ -1,0 +1,20 @@
+# Exercise 6: Password Strength Checker
+
+def check_password(password):
+    import string
+    special_chars = string.punctuation
+    errors = []
+    if len(password) < 8:
+        errors.append("at least 8 characters")
+    if not any(char.isupper() for char in password):
+        errors.append("one uppercase letter")
+    if not any(char.islower() for char in password):
+        errors.append("one lowercase letter")
+    if not any(char in special_chars for char in password):
+        errors.append("one special character")
+    
+    return "Password is strong" if not errors else "Password must contain " + ', '.join(errors)
+
+if __name__ == "__main__":
+    user_password = input("Enter a password to check: ")
+    print(check_password(user_password))
