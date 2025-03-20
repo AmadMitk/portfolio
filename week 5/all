@@ -1,0 +1,140 @@
+import socket
+import threading
+import requests
+import time
+
+# Exercise 1: TCP Server
+def tcp_server():
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(('localhost', 65432))
+    server_socket.listen(5)
+    print("TCP Server is listening...")
+
+    def handle_client(client_socket):
+        data = client_socket.recv(1024).decode()
+        print(f"Server received: {data}")
+        client_socket.sendall(f"ACK: {data}".encode())
+        client_socket.close()
+
+    while True:
+        client_socket, _ = server_socket.accept()
+        threading.Thread(target=handle_client, args=(client_socket,)).start()
+
+# Exercise 2: TCP Client
+def tcp_client():
+    time.sleep(2) 
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect(('localhost', 65432))
+    message = "Hello Server!"
+    client_socket.sendall(message.encode())
+    response = client_socket.recv(1024).decode()
+    print(f"Client received: {response}")
+    client_socket.close()
+
+# Exercise 3: Logging Data
+def log_data():
+    with open('received_data.txt', 'w') as f:
+        f.write("Logged data from TCP communication.\n")
+    print("Data logged successfully!")
+
+# Exercise 4: File Transfer
+def file_transfer():
+    time.sleep(1)
+    with open('file_to_send.txt', 'w') as f:
+        f.write("This is a test file transfer.")
+
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect(('localhost', 65432))
+    with open('file_to_send.txt', 'rb') as f:
+        client_socket.sendfile(f)
+    print("File sent successfully!")
+    client_socket.close()
+
+# Exercise 5: TCP Chat Server
+def chat_server():
+    clients = []
+    def handle_chat_client(client_socket):
+        while True:
+            msg = client_socket.recv(1024).decode()
+            for client in clients:
+                if client != client_socket:
+                    client.sendall(msg.encode())
+
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(('localhost', 65433))
+    server_socket.listen(5)
+    print("Chat server running")
+
+    while True:
+        client_socket, _ = server_socket.accept()
+        clients.append(client_socket)
+        threading.Thread(target=handle_chat_client, args=(client_socket,)).start()
+
+# Exercise 6: Multi-Client Server
+def multi_client_server():
+    def handle_client(client_socket):
+        data = client_socket.recv(1024).decode()
+        print(f"Multi-client Server received: {data}")
+        client_socket.sendall(f"ACK: {data}".encode())
+        client_socket.close()
+
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(('localhost', 65434))
+    server_socket.listen(5)
+    print("Multi-client TCP Server running")
+
+    while True:
+        client_socket, _ = server_socket.accept()
+        threading.Thread(target=handle_client, args=(client_socket,)).start()
+
+# Exercise 7: Basic Chat System
+def basic_chat():
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(('localhost', 65435))
+    server_socket.listen(5)
+    print("Basic Chat Server started...")
+
+    def handle_client(client_socket):
+        msg = client_socket.recv(1024).decode()
+        print(f"Chat received: {msg}")
+        client_socket.sendall(f"Echo: {msg}".encode())
+        client_socket.close()
+
+    while True:
+        client_socket, _ = server_socket.accept()
+        threading.Thread(target=handle_client, args=(client_socket,)).start()
+
+# Exercise 8: Fetch Weather Data Over TCP
+def weather_server():
+    def fetch_weather():
+        api_url = "https://api.open-meteo.com/v1/forecast?latitude=51.47&longitude=-0.0363&current_weather=true"
+        response = requests.get(api_url)
+        if response.status_code == 200:
+            weather_data = response.json()
+            return f"Current temperature: {weather_data['current_weather']['temperature']}°C"
+        return "Failed to fetch weather data"
+
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(('localhost', 65436))
+    server_socket.listen(1)
+    print("Weather Server is running...")
+
+    client_socket, _ = server_socket.accept()
+    weather_info = fetch_weather()
+    client_socket.sendall(weather_info.encode())
+    client_socket.close()
+
+# Run all exercises
+if __name__ == "__main__":
+    threading.Thread(target=tcp_server, daemon=True).start()
+    threading.Thread(target=chat_server, daemon=True).start()
+    threading.Thread(target=multi_client_server, daemon=True).start()
+    threading.Thread(target=basic_chat, daemon=True).start()
+    threading.Thread(target=weather_server, daemon=True).start()
+
+    time.sleep(2)
+    tcp_client()
+    log_data()
+    file_transfer()
+
+    print("\nAll exercises have been executed!\n")
