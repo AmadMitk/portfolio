@@ -1,0 +1,84 @@
+import socket
+import threading
+import requests
+
+# Exercise 1: UDP Server
+def udp_server():
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server_socket.bind(('localhost', 65433))
+    print("UDP Server is ready to receive messages...")
+    while True:
+        data, client_address = server_socket.recvfrom(2048)
+        print(f"Received from {client_address}: {data.decode()}")
+
+# Exercise 2: UDP Client
+def udp_client():
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server_address = ('localhost', 65433)
+    message = "Hello, UDP Server!"
+    client_socket.sendto(message.encode(), server_address)
+    client_socket.close()
+
+# Exercise 3: UDP Chat
+def udp_chat():
+    clients = {}
+    
+    def handle_client(address, message):
+        clients[address] = message
+        print(f"[{address}] {message}")
+    
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server_socket.bind(('localhost', 65434))
+    print("UDP Chat Server started...")
+    while True:
+        data, client_address = server_socket.recvfrom(2048)
+        handle_client(client_address, data.decode())
+
+# Exercise 4: UDP Authentication
+def udp_auth_server():
+    users = {"user1": "password123", "user2": "securepass"}
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server_socket.bind(('localhost', 65435))
+    print("UDP Authentication Server running...")
+    while True:
+        data, client_address = server_socket.recvfrom(2048)
+        username, password = data.decode().split(',')
+        if username in users and users[username] == password:
+            server_socket.sendto(b"Authentication successful", client_address)
+        else:
+            server_socket.sendto(b"Authentication failed", client_address)
+
+# Exercise 5: Encrypted Messaging
+def udp_encrypted_chat():
+    from cryptography.fernet import Fernet
+    key = Fernet.generate_key()
+    cipher = Fernet(key)
+    
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server_socket.bind(('localhost', 65436))
+    print("UDP Encrypted Chat Server running...")
+    while True:
+        data, client_address = server_socket.recvfrom(2048)
+        decrypted_message = cipher.decrypt(data).decode()
+        print(f"[{client_address}] {decrypted_message}")
+
+# Exercise 6: Fetch Weather Data & Send via UDP
+def udp_weather_client():
+    api_url = "https://api.open-meteo.com/v1/forecast?latitude=51.47&longitude=-0.0363&current_weather=true"
+    response = requests.get(api_url)
+    message = f"Current temperature: {response.json()['current_weather']['temperature']}°C" if response.status_code == 200 else "Failed to fetch weather data"
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server_address = ('localhost', 65433)
+    client_socket.sendto(message.encode(), server_address)
+    client_socket.close()
+
+# Run all the exercises
+if __name__ == "__main__":
+    threading.Thread(target=udp_server, daemon=True).start()
+    threading.Thread(target=udp_chat, daemon=True).start()
+    threading.Thread(target=udp_auth_server, daemon=True).start()
+    threading.Thread(target=udp_encrypted_chat, daemon=True).start()
+    
+    udp_client()
+    udp_weather_client()
+    print("\nAll Week 4 exercises executed successfully!\n")
