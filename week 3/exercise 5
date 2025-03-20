@@ -1,0 +1,41 @@
+# Exercise 5: HTTP Request Types
+
+import requests
+
+# GET Request
+def get_request():
+    response = requests.get('https://jsonplaceholder.typicode.com/posts/1')
+    print("GET Response:", response.json())
+
+# POST Request
+def post_request():
+    url = 'https://jsonplaceholder.typicode.com/posts'
+    data = {"title": "Sample Post", "body": "This is an example post.", "userId": 1}
+    response = requests.post(url, json=data)
+    print("POST Response:", response.json())
+
+# PUT Request
+def put_request():
+    url = 'https://jsonplaceholder.typicode.com/posts/1'
+    updated_data = {"id": 1, "title": "Updated Title", "body": "Updated content.", "userId": 1}
+    response = requests.put(url, json=updated_data)
+    print("PUT Response:", response.json())
+
+# DELETE Request
+def delete_request():
+    url = 'https://jsonplaceholder.typicode.com/posts/1'
+    response = requests.delete(url)
+    print("DELETE Status Code:", response.status_code)
+
+if __name__ == "__main__":
+    print("Performing GET request")
+    get_request()
+    
+    print("\nPerforming POST request")
+    post_request()
+    
+    print("\nPerforming PUT request")
+    put_request()
+    
+    print("\nPerforming DELETE request")
+    delete_request()

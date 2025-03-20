@@ -1,0 +1,6 @@
+# Exercise 4: Python Requests Library
+
+import requests
+
+response = requests.get('http://www.example.com')
+print(response.text)
