@@ -1,0 +1,21 @@
+# Exercise 2: Python Data Types
+
+# Creating a list of 5 different fruits
+fruits = ['apple', 'banana', 'cherry', 'date', 'elderberry']
+print("Fruits:", fruits)
+
+# Creating a tuple of 3 different animals
+animals = ('dog', 'cat', 'elephant')
+print("Animals:", animals)
+
+# Creating a dictionary with programming languages and their release years
+languages = {'Python': 1991, 'Java': 1995, 'C++': 1985}
+print("Programming Languages:", languages)
+
+# Creating a set of 3 different colors
+colors = {'red', 'blue', 'green'}
+print("Colors:", colors)
+
+# Creating a string variable
+text = "Python is an easy-to-learn programming language."
+print("Text:", text)

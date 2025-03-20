@@ -1,0 +1,18 @@
+# Exercise 7: Caesar Cipher
+
+def caesar_cipher(text, key, mode):
+    result = ""
+    for char in text:
+        if char.isalpha():
+            shift = key if mode == 'encrypt' else -key
+            new_char = chr(((ord(char.upper()) - 65 + shift) % 26) + 65)
+            result += new_char if char.isupper() else new_char.lower()
+        else:
+            result += char
+    return result
+
+if __name__ == "__main__":
+    message = input("Enter the message: ")
+    key = int(input("Enter the shift key: "))
+    mode = input("Enter mode (encrypt/decrypt): ")
+    print("Result:", caesar_cipher(message, key, mode))
